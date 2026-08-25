@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Foodies Booking System</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background: url("https://images.unsplash.com/photo-1504674900247-0877df9cc836")
+                no-repeat center center fixed;
+            background-size: cover;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+
+        .container {
+            background-color: rgba(255, 255, 255, 0.96);
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        label {
+            font-weight: bold;
+            color: #333;
+            margin-top: 5px;
+        }
+
+        input {
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 16px;
+            width: 100%;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #28a745;
+        }
+
+        .book-btn {
+            margin-top: 15px;
+            padding: 13px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 17px;
+            font-weight: bold;
+        }
+
+        .book-btn:hover {
+            background-color: #218838;
+        }
+
+        .book-btn:disabled {
+            background-color: #888;
+            cursor: not-allowed;
+        }
+
+        .view-bookings-btn {
+            margin-top: 20px;
+            padding: 13px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .view-bookings-btn:hover {
+            background-color: #0056b3;
+        }
+
+        .back-btn {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            color: #333;
+            text-decoration: none;
+        }
+
+        .back-btn:hover {
+            text-decoration: underline;
+        }
+
+        #message {
+            display: none;
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 6px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .success {
+            display: block !important;
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .error {
+            display: block !important;
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                margin: 20px;
+                padding: 25px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>🍽️ Foodies Booking Form</h1>
+
+        <form id="bookingForm">
+
+            <label for="name">Full Name:</label>
+
+            <input
+                type="text"
+                id="name"
+                name="name"
+                placeholder="Enter your full name"
+                required
+            >
+
+
+            <label for="phone">Phone Number:</label>
+
+            <input
+                type="tel"
+                id="phone"
+                name="phone"
+                placeholder="Enter your phone number"
+                pattern="[0-9]{10}"
+                maxlength="10"
+                required
+            >
+
+
+            <label for="date">Date:</label>
+
+            <input
+                type="date"
+                id="date"
+                name="date"
+                required
+            >
+
+
+            <label for="time">Time:</label>
+
+            <input
+                type="time"
+                id="time"
+                name="time"
+                required
+            >
+
+
+            <label for="people">Number of Guests:</label>
+
+            <input
+                type="number"
+                id="people"
+                name="people"
+                min="1"
+                max="20"
+                value="1"
+                required
+            >
+
+
+            <button
+                type="submit"
+                class="book-btn"
+                id="bookButton"
+            >
+                Book Now
+            </button>
+
+        </form>
+
+
+        <div id="message"></div>
+
+
+        <button
+            class="view-bookings-btn"
+            onclick="window.location.href='booking.html'"
+        >
+            View All Bookings
+        </button>
+
+
+        <a href="index.html" class="back-btn">
+            ← Back to Home
+        </a>
+
+    </div>
+
+
+    <script>
+
+        const bookingForm = document.getElementById("bookingForm");
+
+        const message = document.getElementById("message");
+
+        const bookButton = document.getElementById("bookButton");
+
+
+        bookingForm.addEventListener("submit", async function(event) {
+
+            event.preventDefault();
+
+
+            message.className = "";
+
+            message.style.display = "none";
+
+            bookButton.disabled = true;
+
+            bookButton.textContent = "Booking...";
+
+
+            const booking = {
+
+                name: document.getElementById("name").value.trim(),
+
+                phone: document.getElementById("phone").value.trim(),
+
+                date: document.getElementById("date").value,
+
+                time: document.getElementById("time").value,
+
+                people: Number(
+                    document.getElementById("people").value
+                )
+
+            };
+
+
+            try {
+
+                const response = await fetch("/book", {
+
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+
+                    body: JSON.stringify(booking)
+
+                });
+
+
+                const result = await response.json();
+
+
+                if (response.ok) {
+
+                    message.className = "success";
+
+                    message.innerHTML =
+                        "✅ Booking successful!<br><br>" +
+                        "Booking ID: " +
+                        result.bookingId;
+
+                    bookingForm.reset();
+
+                } else {
+
+                    message.className = "error";
+
+                    message.textContent =
+                        result.error ||
+                        result.message ||
+                        "Booking failed.";
+
+                }
+
+            } catch (error) {
+
+                console.error("Booking error:", error);
+
+                message.className = "error";
+
+                message.textContent =
+                    "❌ Unable to connect to the server. Please try again.";
+
+            }
+
+
+            bookButton.disabled = false;
+
+            bookButton.textContent = "Book Now";
+
+        });
+
+    </script>
+
+</body>
+
+</html>
