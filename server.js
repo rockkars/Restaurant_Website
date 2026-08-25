@@ -1,68 +1,472 @@
-const express = require('express');
-const sqlite3 = require('sqlite3').verbose();
-const path = require('path');
-const bodyParser = require('body-parser');
+const express = require("express");
+const path = require("path");
 
 const app = express();
-const PORT = 3000;
 
-// Setup database
-const db = new sqlite3.Database('./foodies.db', (err) => {
-  if (err) return console.error(err.message);
-  console.log('Connected to the foodies database.');
+const PORT = process.env.PORT || 3000;
+
+
+// ======================================================
+// MIDDLEWARE
+// ======================================================
+
+app.use(express.json());
+
+app.use(
+    express.urlencoded({
+        extended: true
+    })
+);
+
+
+// ======================================================
+// FRONTEND
+// ======================================================
+
+const publicPath = path.join(__dirname, "public");
+
+app.use(express.static(publicPath));
+
+
+// ======================================================
+// HOME PAGE
+// ======================================================
+
+app.get("/", (req, res) => {
+
+    res.sendFile(
+        path.join(publicPath, "index.html")
+    );
+
 });
 
-db.run(`
-  CREATE TABLE IF NOT EXISTS bookings (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL,
-    phone TEXT NOT NULL,
-    date TEXT NOT NULL,
-    time TEXT NOT NULL,
-    people INTEGER NOT NULL
-  )
-`);
 
-// Middleware
-app.use(bodyParser.json());
-app.use(express.static(path.join(__dirname)));
+// ======================================================
+// TEMPORARY BOOKING STORAGE
+// ======================================================
+//
+// This storage is temporary.
+// It is suitable for testing the frontend/backend
+// connection.
+//
+// Vercel serverless functions do NOT provide permanent
+// database storage.
+//
+// ======================================================
 
-// Routes
+let bookings = [];
 
-// Booking creation
-app.post('/book', (req, res) => {
-  const { name, phone, date, time, people } = req.body;
-  db.run(
-    `INSERT INTO bookings (name, phone, date, time, people) VALUES (?, ?, ?, ?, ?)`,
-    [name, phone, date, time, people],
-    function (err) {
-      if (err) return res.status(500).json({ error: err.message });
-      res.status(201).json({ message: 'Booking created', bookingId: this.lastID });
+let nextBookingId = 1;
+
+
+// ======================================================
+// HEALTH CHECK
+// ======================================================
+
+app.get("/health", (req, res) => {
+
+    res.status(200).json({
+
+        status: "OK",
+
+        message: "Restaurant backend is running successfully"
+
+    });
+
+});
+
+
+// ======================================================
+// CREATE BOOKING
+// ======================================================
+
+app.post("/book", (req, res) => {
+
+    try {
+
+        const {
+            name,
+            phone,
+            date,
+            time,
+            people
+        } = req.body;
+
+
+        // ----------------------------------------------
+        // Validate fields
+        // ----------------------------------------------
+
+        if (
+            !name ||
+            !phone ||
+            !date ||
+            !time ||
+            !people
+        ) {
+
+            return res.status(400).json({
+
+                success: false,
+
+                error: "All booking fields are required"
+
+            });
+
+        }
+
+
+        // ----------------------------------------------
+        // Validate number of people
+        // ----------------------------------------------
+
+        const numberOfPeople = Number(people);
+
+
+        if (
+            !Number.isInteger(numberOfPeople) ||
+            numberOfPeople < 1 ||
+            numberOfPeople > 20
+        ) {
+
+            return res.status(400).json({
+
+                success: false,
+
+                error: "Number of guests must be between 1 and 20"
+
+            });
+
+        }
+
+
+        // ----------------------------------------------
+        // Create booking
+        // ----------------------------------------------
+
+        const booking = {
+
+            id: nextBookingId++,
+
+            restaurant: "Foodies",
+
+            name: String(name).trim(),
+
+            phone: String(phone).trim(),
+
+            date: String(date),
+
+            time: String(time),
+
+            people: numberOfPeople
+
+        };
+
+
+        // ----------------------------------------------
+        // Store booking
+        // ----------------------------------------------
+
+        bookings.push(booking);
+
+
+        console.log(
+            "New booking:",
+            booking
+        );
+
+
+        // ----------------------------------------------
+        // Send response
+        // ----------------------------------------------
+
+        return res.status(201).json({
+
+            success: true,
+
+            message: "Booking created successfully",
+
+            bookingId: booking.id,
+
+            booking: booking
+
+        });
+
     }
-  );
-});
 
-// View all bookings
-app.get('/bookings', (req, res) => {
-  db.all(`SELECT * FROM bookings ORDER BY date, time`, [], (err, rows) => {
-    if (err) return res.status(500).json({ error: err.message });
-    res.json(rows);
-  });
-});
+    catch (error) {
 
-// Cancel booking
-app.delete('/cancel/:id', (req, res) => {
-  const id = req.params.id;
-  db.run(`DELETE FROM bookings WHERE id = ?`, [id], function (err) {
-    if (err) return res.status(500).json({ error: err.message });
-    if (this.changes === 0) {
-      return res.status(404).json({ message: 'Booking not found' });
+        console.error(
+            "Booking creation error:",
+            error
+        );
+
+
+        return res.status(500).json({
+
+            success: false,
+
+            error: "Failed to create booking"
+
+        });
+
     }
-    res.json({ message: 'Booking cancelled', id });
-  });
+
 });
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+
+// ======================================================
+// GET ALL BOOKINGS
+// ======================================================
+
+app.get("/bookings", (req, res) => {
+
+    try {
+
+        const sortedBookings = [...bookings].sort(
+            (a, b) => {
+
+                const dateA =
+                    `${a.date} ${a.time}`;
+
+                const dateB =
+                    `${b.date} ${b.time}`;
+
+                return dateA.localeCompare(dateB);
+
+            }
+        );
+
+
+        return res.status(200).json(
+            sortedBookings
+        );
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Fetch bookings error:",
+            error
+        );
+
+
+        return res.status(500).json({
+
+            success: false,
+
+            error: "Failed to fetch bookings"
+
+        });
+
+    }
+
 });
+
+
+// ======================================================
+// GET SINGLE BOOKING
+// ======================================================
+
+app.get("/bookings/:id", (req, res) => {
+
+    try {
+
+        const id =
+            Number(req.params.id);
+
+
+        const booking =
+            bookings.find(
+                booking => booking.id === id
+            );
+
+
+        if (!booking) {
+
+            return res.status(404).json({
+
+                success: false,
+
+                message: "Booking not found"
+
+            });
+
+        }
+
+
+        return res.status(200).json(
+            booking
+        );
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Get booking error:",
+            error
+        );
+
+
+        return res.status(500).json({
+
+            success: false,
+
+            error: "Failed to get booking"
+
+        });
+
+    }
+
+});
+
+
+// ======================================================
+// CANCEL BOOKING
+// ======================================================
+
+app.delete("/cancel/:id", (req, res) => {
+
+    try {
+
+        const id =
+            Number(req.params.id);
+
+
+        const bookingIndex =
+            bookings.findIndex(
+                booking => booking.id === id
+            );
+
+
+        if (bookingIndex === -1) {
+
+            return res.status(404).json({
+
+                success: false,
+
+                message: "Booking not found"
+
+            });
+
+        }
+
+
+        const deletedBooking =
+            bookings[bookingIndex];
+
+
+        bookings.splice(
+            bookingIndex,
+            1
+        );
+
+
+        console.log(
+            "Booking cancelled:",
+            deletedBooking
+        );
+
+
+        return res.status(200).json({
+
+            success: true,
+
+            message: "Booking cancelled successfully",
+
+            id: id
+
+        });
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Cancel booking error:",
+            error
+        );
+
+
+        return res.status(500).json({
+
+            success: false,
+
+            error: "Failed to cancel booking"
+
+        });
+
+    }
+
+});
+
+
+// ======================================================
+// 404 HANDLER
+// ======================================================
+
+app.use((req, res) => {
+
+    res.status(404).json({
+
+        success: false,
+
+        error: "Route not found",
+
+        path: req.originalUrl
+
+    });
+
+});
+
+
+// ======================================================
+// ERROR HANDLER
+// ======================================================
+
+app.use((err, req, res, next) => {
+
+    console.error(
+        "Server error:",
+        err
+    );
+
+
+    res.status(500).json({
+
+        success: false,
+
+        error: "Internal server error"
+
+    });
+
+});
+
+
+// ======================================================
+// LOCAL SERVER
+// ======================================================
+
+if (require.main === module) {
+
+    app.listen(
+        PORT,
+        () => {
+
+            console.log(
+                `Server is running on http://localhost:${PORT}`
+            );
+
+        }
+    );
+
+}
+
+
+// ======================================================
+// EXPORT APP FOR VERCEL
+// ======================================================
+
+module.exports = app;

@@ -1,23 +1,13 @@
 {
-  "name": "foodies-booking-system",
+  "name": "restaurant-website",
   "version": "1.0.0",
-  "description": "A table booking system for the Foodies restaurant web application.",
+  "description": "Restaurant website with Express backend",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "dev": "node server.js"
   },
-  "keywords": [
-    "restaurant",
-    "booking",
-    "nodejs",
-    "sqlite",
-    "express"
-  ],
-  "author": "Your Name",
-  "license": "ISC",
   "dependencies": {
-    "body-parser": "^1.20.3",
-    "express": "^4.21.2",
-    "sqlite3": "^5.1.7"
+    "express": "^4.21.2"
   }
 }
