@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Place Your Order</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <style>
+    body {
+      background: linear-gradient(
+        rgba(0, 0, 0, 0.5), 
+        rgba(0, 0, 0, 0.5)
+      ), url('https://images.unsplash.com/photo-1498654896293-37aacf113fd9?auto=format&fit=crop&w=1400&q=80') no-repeat center center fixed;
+      background-size: cover;
+      color: #fff;
+      min-height: 100vh;
+    }
+
+    .order-card {
+      background-color: rgba(255, 255, 255, 0.95);
+      border-radius: 15px;
+      padding: 30px;
+      color: #000;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    }
+
+    label {
+      font-weight: 500;
+    }
+
+    .menu-card {
+      background-color: rgba(255, 255, 255, 0.9);
+      border-radius: 15px;
+      padding: 20px;
+      color: #000;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+    }
+
+    .menu-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    .menu-item img {
+      width: 60px;
+      height: 60px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-right: 15px;
+    }
+
+    .menu-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .form-check-label small {
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+  <div class="container py-5">
+    <div class="row justify-content-center align-items-start g-4">
+      <!-- Order Form -->
+      <div class="col-md-7 order-card">
+        <h2 class="mb-4 text-center">Place Your Order</h2>
+        <form id="orderForm" action="confirmation.html" method="GET">
+          <div class="mb-3">
+            <label for="name" class="form-label">Full Name</label>
+            <input type="text" id="name" name="name" class="form-control" required />
+          </div>
+          <div class="mb-3">
+            <label for="mobile" class="form-label">Mobile Number</label>
+            <input type="tel" id="mobile" name="mobile" class="form-control" pattern="[0-9]{10}" placeholder="e.g., 9876543210" required />
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Select Food Item(s)</label>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="food" value="Rainbow Vegetables Sandwich - ₹129" id="food1">
+                <label class="form-check-label" for="food1">Rainbow Vegetables Sandwich <small>- ₹129</small></label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="food" value="Vegetarian Burger - ₹159" id="food2">
+                <label class="form-check-label" for="food2">Vegetarian Burger <small>- ₹159</small></label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="food" value="Raspberry Stuffed French Toast - ₹189" id="food3">
+                <label class="form-check-label" for="food3">Raspberry Stuffed French Toast <small>- ₹189</small></label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="food" value="Cheesy Pasta - ₹159" id="food4">
+                <label class="form-check-label" for="food4">Cheesy Pasta <small>- ₹159</small></label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="food" value="Green Salad - ₹129" id="food5">
+                <label class="form-check-label" for="food5">Green Salad <small>- ₹129</small></label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="food" value="Veggie Pizza - ₹189" id="food6">
+                <label class="form-check-label" for="food6">Veggie Pizza <small>- ₹189</small></label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="food" value="Tomato Soup - ₹129" id="food7">
+                <label class="form-check-label" for="food7">Tomato Soup <small>- ₹129</small></label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="food" value="Veg Wrap - ₹249" id="food8">
+                <label class="form-check-label" for="food8">Veg Wrap <small>- ₹249</small></label>
+              </div>
+              
+            </div>
+          <div class="mb-3">
+            <label for="address" class="form-label">Delivery Address</label>
+            <textarea id="address" name="address" class="form-control" rows="3" required></textarea>
+          </div>
+          <div class="mb-3">
+            <label for="location" class="form-label">Select Your Area</label>
+            <select id="location" name="location" class="form-select" required>
+              <option value="">--Choose your area--</option>
+              <option value="kokapet">Kokapet</option>
+              <option value="narsing">Narsing</option>
+              <option value="gandipet">Gandipet</option>
+              <option value="suncity">Suncity</option>
+            </select>
+          </div>
+          <button type="submit" class="btn btn-success w-100 mt-4">Submit Order</button>
+        </form>
+      </div>
+
+      <!-- Mini Menu -->
+      <div class="col-md-4 menu-card" style="max-height: 600px; overflow-y: auto;">
+        <h4 class="mb-3 text-center">Mini Menu</h4>
+
+        <div class="menu-item">
+          <img src="https://images.unsplash.com/photo-1746333372832-58df1cda4960?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTJ8fHZlZyUyMHNhbmR3aWNofGVufDB8fDB8fHww" alt="Sandwich" />
+          <div><strong>Veggie Sandwich</strong><br />₹129 - Colorful & crunchy delight.</div>
+        </div>
+
+        <div class="menu-item">
+          <img src="https://plus.unsplash.com/premium_photo-1675252369719-dd52bc69c3df?w=500&auto=format&fit=crop&q=60" alt="Burger" />
+          <div><strong>Veggie Burger</strong><br />₹159- Hearty & satisfying.</div>
+        </div>
+
+        <div class="menu-item">
+          <img src="https://images.unsplash.com/photo-1600891964599-f61ba0e24092?auto=format&fit=crop&w=60&q=60" alt="French Toast" />
+          <div><strong>Stuffed Toast</strong><br />₹189 - Sweet & fruity goodness.</div>
+        </div>
+
+        <div class="menu-item">
+          <img src="https://media.istockphoto.com/id/482964545/photo/arrabiata-pasta.webp?a=1&b=1&s=612x612&w=0&k=20&c=WgBDLDed6qro4H1gamjxl5hWALBdXm6T0UGSU3d6TRo=" alt="Pasta" />
+          <div><strong>Cheesy Pasta</strong><br />₹159 - Creamy & rich flavor.</div>
+        </div>
+
+        <div class="menu-item">
+          <img src="https://images.unsplash.com/photo-1607532941433-304659e8198a?w=500&auto=format&fit=crop&q=60" alt="Salad" />
+          <div><strong>Green Salad</strong><br />₹129 - Fresh & healthy mix.</div>
+        </div>
+
+        <div class="menu-item">
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS8owPI_tkA9jArRSGjsQyY7QPeO4WI64q2Qw&s" alt="Sandwich" />
+            <div><strong>Rainbow vegetables Sandwich</strong><br />₹129 - Colorful & crunchy delight.</div>
+          </div>
+    
+        <div class="menu-item">
+          <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=500&auto=format&fit=crop&q=60" alt="Pizza" />
+          <div><strong>Veggie Pizza</strong><br />₹189 - Crispy crust & loaded veggies.</div>
+        </div>
+
+        <div class="menu-item">
+          <img src="https://images.unsplash.com/photo-1603105037880-880cd4edfb0d?w=500&auto=format&fit=crop&q=60" alt="Soup" />
+          <div><strong>Tomato Soup</strong><br />₹129 - Warm & comforting bowl.</div>
+        </div>
+
+        <div class="menu-item">
+          <img src="https://images.unsplash.com/photo-1626700051175-6818013e1d4f?w=500&auto=format&fit=crop&q=60" alt="Wrap" />
+          <div><strong>Veg Wrap</strong><br />₹249 - Tightly packed goodness.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
